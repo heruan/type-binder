@@ -1,5 +1,8 @@
 # JavaScript object type binding
 
+[![npm version](https://img.shields.io/npm/v/type-binder.svg)](https://www.npmjs.com/package/type-binder)
+[![CircleCI](https://img.shields.io/circleci/project/github/heruan/type-binder.svg)](https://circleci.com/gh/heruan/type-binder)
+
 ## Type binding
 
 Given an ES6/TypeScript class
@@ -23,7 +26,7 @@ let object = { name: "Foo" }; // or JSON.parse('{ "name": "Foo" }');
 
 let foo = new TypeBinder().bind(object, Person);
 
-foo.sayHello(); // returns "Hello,  my name is Foo!"
+foo.sayHello(); // returns "Hello, my name is Foo!"
 ```
 
 To bind also object properties, you can use a decorator
