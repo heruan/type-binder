@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { designTypeKey, designGenericTypesKey, trackProperty, trackPropertyOriginal, objectIdentifierKey, objectIdentifierScope } from "./metadata-keys";
+import * as metadataKeys from "./metadata-keys";
 
 export class TypeBinder {
 
@@ -33,16 +33,6 @@ export class TypeBinder {
         this.bindingCallbacks.set(type, callback);
     }
 
-    public propertyHasChanged(object: Object, property: string): boolean {
-        if (Reflect.hasMetadata(trackPropertyOriginal, object, property)) {
-            let currentValue = object[property];
-            let originalValue = Reflect.getMetadata(trackPropertyOriginal, object, property);
-            return currentValue !== originalValue;
-        } else {
-            return false;
-        }
-    }
-
     public bind<T>(value: any, type: new(...args) => T, ...generics: any[]): T {
         if (Array.isArray(type)) {
             generics = type.slice(1);
@@ -61,9 +51,9 @@ export class TypeBinder {
 
     private createObject<T>(type: new(...args) => T, source: Object): T {
         let object: T;
-        if (Reflect.hasMetadata(objectIdentifierKey, type)) {
-            let key = Reflect.getMetadata(objectIdentifierKey, type)(source, this);
-            let scope = Reflect.getMetadata(objectIdentifierScope, type) || type;
+        if (Reflect.hasMetadata(metadataKeys.binderIdentifierKey, type)) {
+            let key = Reflect.getMetadata(metadataKeys.binderIdentifierKey, type)(source, this);
+            let scope = Reflect.getMetadata(metadataKeys.binderIdentifierScope, type) || type;
             if (this.objectInstances.has(scope) && this.objectInstances.get(scope).has(key)) {
                 object = <T> this.objectInstances.get(scope).get(key);
             } else {
@@ -82,19 +72,36 @@ export class TypeBinder {
     private createProperties<T>(type: new(...args) => T, target: T, source: Object): PropertyDescriptorMap {
         let properties: PropertyDescriptorMap = {};
         Object.getOwnPropertyNames(source).forEach(property => {
-            let propertyType = Reflect.getMetadata(designTypeKey, type.prototype, property);
-            let propertyGenerics = Reflect.getMetadata(designGenericTypesKey, type.prototype, property);
+            let propertyType = Reflect.getMetadata(metadataKeys.designType, type.prototype, property);
+            let propertyGenerics = Reflect.getMetadata(metadataKeys.designGenericTypes, type.prototype, property);
             properties[property] = {
                 configurable: false,
                 enumerable: true,
                 writable: true,
                 value: this.bind(source[property], propertyType, ...propertyGenerics)
             };
-            if (Reflect.getMetadata(trackProperty, type.prototype, property)) {
-                Reflect.defineMetadata(trackPropertyOriginal, properties[property].value, target, property);
+            if (Reflect.hasMetadata(metadataKeys.binderPropertyTrack, type.prototype, property)) {
+                let trackingCallback: (value: any) => any = Reflect.getMetadata(metadataKeys.binderPropertyTrack, type.prototype, property);
+                let value = trackingCallback(properties[property].value);
+                Reflect.defineMetadata(metadataKeys.binderPropertyTrackValue, value, target, property);
+            }
+            if (Reflect.hasMetadata(metadataKeys.binderPropertyEntries, type.prototype, property)) {
+                let trackingCallback: <I, K, V>(value: I) => [K, V][] = Reflect.getMetadata(metadataKeys.binderPropertyEntries, type.prototype, property);
+                let value = trackingCallback(properties[property].value);
+                Reflect.defineMetadata(metadataKeys.binderPropertyEntriesValue, value, target, property);
             }
         });
         return properties;
+    }
+
+    public static propertyHasChanged(object: Object, property: string): boolean {
+        if (Reflect.hasMetadata(metadataKeys.binderPropertyTrackValue, object, property)) {
+            let currentValue = object[property];
+            let originalValue = Reflect.getMetadata(metadataKeys.binderPropertyTrackValue, object, property);
+            return currentValue !== originalValue;
+        } else {
+            return false;
+        }
     }
 
 }

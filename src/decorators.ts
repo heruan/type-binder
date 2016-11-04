@@ -1,22 +1,26 @@
 import "reflect-metadata";
 import { TypeBinder } from "./type-binder";
-import { designTypeKey, designGenericTypesKey, trackProperty, objectIdentifierKey, objectIdentifierScope } from "./metadata-keys";
+import * as metadataKeys from "./metadata-keys";
 
 export function bind(type: any): PropertyDecorator {
-    return Reflect.metadata(designTypeKey, type);
+    return Reflect.metadata(metadataKeys.designType, type);
 }
 
 export function generics(...generics: any[]): PropertyDecorator {
-    return Reflect.metadata(designGenericTypesKey, generics);
+    return Reflect.metadata(metadataKeys.designGenericTypes, generics);
 }
 
-export function track(): PropertyDecorator {
-    return Reflect.metadata(trackProperty, true);
+export function track<T>(trackingCallback: (value: T) => T = (value: T) => value): PropertyDecorator {
+    return Reflect.metadata(metadataKeys.binderPropertyTrack, trackingCallback);
+}
+
+export function trackEntries<T, E>(trackingCallback: (value: T) => E[]): PropertyDecorator {
+    return Reflect.metadata(metadataKeys.binderPropertyEntries, trackingCallback);
 }
 
 export function identifier<T>(identifier: (object: T, binder?: TypeBinder) => any, scope?: any): ClassDecorator {
     return (target: Function) => {
-        Reflect.defineMetadata(objectIdentifierKey, identifier, target);
-        Reflect.defineMetadata(objectIdentifierScope, scope, target);
+        Reflect.defineMetadata(metadataKeys.binderIdentifierKey, identifier, target);
+        Reflect.defineMetadata(metadataKeys.binderIdentifierScope, scope, target);
     };
 }
