@@ -60,7 +60,7 @@ class Person {
 
 }
 
-let foo = new TypeBinder().bind({ name: "Foo", children: [ { name: "Bar" }, { name: "Baz" } ] });
+let foo = new TypeBinder().bind({ name: "Foo", children: [ { name: "Bar" }, { name: "Baz" } ] }, Person);
 
 for (let child of foo.children) {
     child.sayHello();
@@ -103,9 +103,9 @@ class Person {
 
 let binder = new TypeBinder();
 
-let foo1 = binder.bind({ "name": "Foo" });
+let foo1 = binder.bind({ "name": "Foo" }, Person);
 
-let foo2 = binder.bind({ "name": "Foo" });
+let foo2 = binder.bind({ "name": "Foo" }, Person);
 
 foo1 === foo2; // true
 ```
@@ -124,11 +124,11 @@ class Person {
 
 }
 
-let person = new TypeBinder().bind({ name: "Foo" });
+let person = new TypeBinder().bind({ name: "Foo" }, Person);
 
 person.name = "Bar";
 
-let changed = new TypeBinder().propertyHasChanged(person, "name");
+let changed = TypeBinder.propertyHasChanged(person, "name");
 
 changed === true; // true
 ```
