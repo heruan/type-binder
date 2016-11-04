@@ -69,10 +69,10 @@ describe("object-mapper", () => {
         }
 
         let baz = new TypeBinder().bind(object, Baz);
-        let diff = new TypeBinder().propertyHasChanged(baz, "number");
+        let diff = TypeBinder.propertyHasChanged(baz, "number");
         expect(diff).toBe(false);
         baz.number = 456;
-        diff = new TypeBinder().propertyHasChanged(baz, "number");
+        diff = TypeBinder.propertyHasChanged(baz, "number");
         expect(diff).toBe(true);
     });
 
