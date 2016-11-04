@@ -1,6 +1,6 @@
 {
   "name": "type-binder",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A JavaScript type-binder.",
   "keywords": [
     "type-binding",
@@ -38,7 +38,7 @@
     "merge2": "^1.0.2",
     "path-exists": "^3.0.0",
     "run-sequence": "^1.2.2",
-    "typescript": "^2.0.6",
+    "typescript": "^2.0.7",
     "vinyl-paths": "^2.1.0"
   }
 }
