@@ -1,17 +1,15 @@
-/// <reference path="../../typings/index.d.ts" />
-
 import "reflect-metadata";
-import { bind, generics, track, identifier } from "../../src/decorators";
-import { TypeBinder } from "../../src/type-binder";
+import { bind, generics, track, identifier } from "../../main/decorators";
+import { TypeBinder } from "../../main/type-binder";
 
 @identifier<Foo>(foo => foo.id)
 class Foo {
     id: number;
 }
 
-class Bar extends Foo {}
+class Bar extends Foo { }
 
-@identifier<Baz>((baz, binder) => binder.bind(baz.foo, Foo))
+@identifier<Baz>(baz => baz.number)
 class Baz {
     @bind(Foo) foo: Foo;
     @bind(Set) @generics(Bar) set: Set<Bar>;
@@ -26,12 +24,12 @@ describe("object-mapper", () => {
     it("maps an object", () => {
 
         let object = {
-            foo: {},
+            foo: { },
             set: [
-                {}
+                { }
             ],
             map: [
-                [ {}, {} ]
+                [ { }, { } ]
             ],
             number: 123,
             bool: true,
@@ -77,20 +75,15 @@ describe("object-mapper", () => {
     });
 
     it("reuses object instances", () => {
-        let baz = {
+        let object = {
             foo: {
                 id: 1
             }
         };
-        let foo = {
-            id: 1
-        };
         let binder = new TypeBinder();
-        let mBaz = binder.bind(baz, Baz);
-        let mFoo = binder.bind(foo, Foo);
-        let mBaz2 = binder.bind({ foo: mFoo }, Baz);
-        expect(mBaz.foo).toBe(mFoo);
-        expect(mBaz2).toBe(mBaz);
+        let baz = binder.bind(object, Baz);
+        let foo = binder.bind({ id: 1 }, Foo);
+        expect(baz.foo).toBe(foo);
     });
 
 });

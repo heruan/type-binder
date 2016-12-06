@@ -12,7 +12,7 @@ export class TypeBinder {
     public constructor() {
         this.bindingCallbacks = new Map<any, (value: any, generics: any[]) => any>();
         this.bindingCallbacks.set(Map, (value: [any, any][], generics: any[]) => new Map(
-            value.map(pair => <[{}, {}]> [
+            value.map(pair => <[{ }, { }]> [
                 this.bind(pair[0], generics[0]),
                 this.bind(pair[1], generics[1])
             ])
@@ -49,11 +49,22 @@ export class TypeBinder {
         }
     }
 
-    private createObject<T>(type: new(...args) => T, source: Object): T {
+    public isBound<T>(type: new(...args) => T, entity: T): boolean {
+        if (Reflect.hasMetadata(metadataKeys.binderIdentifierKey, type)) {
+            let scope = Reflect.getMetadata(metadataKeys.binderIdentifierScope, type) || type;
+            let key = Reflect.getMetadata(metadataKeys.binderIdentifierKey, type)(entity, this);
+            if (this.objectInstances.has(scope) && this.objectInstances.get(scope).has(key)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private createObject<T>(type: new(...args) => T, source: any): T {
         let object: T;
         if (Reflect.hasMetadata(metadataKeys.binderIdentifierKey, type)) {
-            let key = Reflect.getMetadata(metadataKeys.binderIdentifierKey, type)(source, this);
             let scope = Reflect.getMetadata(metadataKeys.binderIdentifierScope, type) || type;
+            let key = Reflect.getMetadata(metadataKeys.binderIdentifierKey, type)(source, this);
             if (this.objectInstances.has(scope) && this.objectInstances.get(scope).has(key)) {
                 object = <T> this.objectInstances.get(scope).get(key);
             } else {
@@ -70,7 +81,7 @@ export class TypeBinder {
     }
 
     private createProperties<T>(type: new(...args) => T, target: T, source: Object): PropertyDescriptorMap {
-        let properties: PropertyDescriptorMap = {};
+        let properties: PropertyDescriptorMap = { };
         Object.getOwnPropertyNames(source).forEach(property => {
             let propertyType = Reflect.getMetadata(metadataKeys.designType, type.prototype, property);
             let propertyGenerics = Reflect.getMetadata(metadataKeys.designGenericTypes, type.prototype, property);
@@ -78,15 +89,15 @@ export class TypeBinder {
                 configurable: false,
                 enumerable: true,
                 writable: true,
-                value: this.bind(source[property], propertyType, ...propertyGenerics)
+                value: propertyType ? this.bind(source[property], propertyType, ...propertyGenerics) : source[property]
             };
             if (Reflect.hasMetadata(metadataKeys.binderPropertyTrack, type.prototype, property)) {
-                let trackingCallback: (value: any) => any = Reflect.getMetadata(metadataKeys.binderPropertyTrack, type.prototype, property);
+                let trackingCallback: <V>(value: V) => V = Reflect.getMetadata(metadataKeys.binderPropertyTrack, type.prototype, property);
                 let value = trackingCallback(properties[property].value);
                 Reflect.defineMetadata(metadataKeys.binderPropertyTrackValue, value, target, property);
             }
             if (Reflect.hasMetadata(metadataKeys.binderPropertyEntries, type.prototype, property)) {
-                let trackingCallback: <I, K, V>(value: I) => [K, V][] = Reflect.getMetadata(metadataKeys.binderPropertyEntries, type.prototype, property);
+                let trackingCallback: <I extends Iterable<V>, V>(iterable: I) => V[] = Reflect.getMetadata(metadataKeys.binderPropertyEntries, type.prototype, property);
                 let value = trackingCallback(properties[property].value);
                 Reflect.defineMetadata(metadataKeys.binderPropertyEntriesValue, value, target, property);
             }

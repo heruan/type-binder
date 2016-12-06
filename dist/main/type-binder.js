@@ -42,11 +42,21 @@ var TypeBinder = (function () {
             return value;
         }
     };
+    TypeBinder.prototype.isBound = function (type, entity) {
+        if (Reflect.hasMetadata(metadataKeys.binderIdentifierKey, type)) {
+            var scope = Reflect.getMetadata(metadataKeys.binderIdentifierScope, type) || type;
+            var key = Reflect.getMetadata(metadataKeys.binderIdentifierKey, type)(entity, this);
+            if (this.objectInstances.has(scope) && this.objectInstances.get(scope).has(key)) {
+                return true;
+            }
+        }
+        return false;
+    };
     TypeBinder.prototype.createObject = function (type, source) {
         var object;
         if (Reflect.hasMetadata(metadataKeys.binderIdentifierKey, type)) {
-            var key = Reflect.getMetadata(metadataKeys.binderIdentifierKey, type)(source, this);
             var scope = Reflect.getMetadata(metadataKeys.binderIdentifierScope, type) || type;
+            var key = Reflect.getMetadata(metadataKeys.binderIdentifierKey, type)(source, this);
             if (this.objectInstances.has(scope) && this.objectInstances.get(scope).has(key)) {
                 object = this.objectInstances.get(scope).get(key);
             }
@@ -73,7 +83,7 @@ var TypeBinder = (function () {
                 configurable: false,
                 enumerable: true,
                 writable: true,
-                value: _this.bind.apply(_this, [source[property], propertyType].concat(propertyGenerics))
+                value: propertyType ? _this.bind.apply(_this, [source[property], propertyType].concat(propertyGenerics)) : source[property]
             };
             if (Reflect.hasMetadata(metadataKeys.binderPropertyTrack, type.prototype, property)) {
                 var trackingCallback = Reflect.getMetadata(metadataKeys.binderPropertyTrack, type.prototype, property);

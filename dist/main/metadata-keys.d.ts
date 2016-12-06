@@ -1,0 +1,12 @@
+export declare const designType = "design:type";
+export declare const designParamTypes = "design:paramtypes";
+export declare const designReturnType = "design:returntype";
+export declare const designGenericTypes = "design:generictypes";
+export declare const binderPropertyTrack = "binder:property:track:callback";
+export declare const binderPropertyTrackCompare = "binder:property:track:compare";
+export declare const binderPropertyTrackValue = "binder:property:track:value";
+export declare const binderPropertyEntries = "binder:property:entries:callback";
+export declare const binderPropertyEntriesCompare = "binder:property:entries:compare";
+export declare const binderPropertyEntriesValue = "binder:property:entries:value";
+export declare const binderIdentifierKey = "binder:identifier:key";
+export declare const binderIdentifierScope = "binder:identifier:scope";
