@@ -118,3 +118,5 @@ describe("object-mapper", function () {
         expect(baz.foo).toBe(foo);
     });
 });
+
+//# sourceMappingURL=type-binder.js.map

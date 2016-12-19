@@ -2,13 +2,22 @@
 require("reflect-metadata");
 var metadataKeys = require("./metadata-keys");
 function bind(type) {
-    return Reflect.metadata(metadataKeys.designType, type);
+    var generics = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        generics[_i - 1] = arguments[_i];
+    }
+    return function (target, key) {
+        Reflect.defineMetadata(metadataKeys.designType, type, target, key);
+        if (generics.length > 0) {
+            Reflect.defineMetadata(metadataKeys.designGenericTypes, generics, target, key);
+        }
+    };
 }
 exports.bind = bind;
 function generics() {
     var generics = [];
     for (var _i = 0; _i < arguments.length; _i++) {
-        generics[_i - 0] = arguments[_i];
+        generics[_i] = arguments[_i];
     }
     return Reflect.metadata(metadataKeys.designGenericTypes, generics);
 }
@@ -38,3 +47,5 @@ function identifier(identifier, scope) {
     };
 }
 exports.identifier = identifier;
+
+//# sourceMappingURL=decorators.js.map

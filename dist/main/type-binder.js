@@ -111,3 +111,5 @@ var TypeBinder = (function () {
     return TypeBinder;
 }());
 exports.TypeBinder = TypeBinder;
+
+//# sourceMappingURL=type-binder.js.map
