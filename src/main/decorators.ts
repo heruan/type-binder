@@ -2,8 +2,13 @@ import "reflect-metadata";
 import { TypeBinder } from "./type-binder";
 import * as metadataKeys from "./metadata-keys";
 
-export function bind(type: any): PropertyDecorator {
-    return Reflect.metadata(metadataKeys.designType, type);
+export function bind(type: any, ...generics: any[]): PropertyDecorator {
+    return (target: Function, key: string) => {
+        Reflect.defineMetadata(metadataKeys.designType, type, target, key);
+        if (generics.length > 0) {
+            Reflect.defineMetadata(metadataKeys.designGenericTypes, generics, target, key);
+        }
+    };
 }
 
 export function generics(...generics: any[]): PropertyDecorator {

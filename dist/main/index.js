@@ -6,3 +6,5 @@ var type_binder_1 = require("./type-binder");
 exports.TypeBinder = type_binder_1.TypeBinder;
 __export(require("./metadata-keys"));
 __export(require("./decorators"));
+
+//# sourceMappingURL=index.js.map

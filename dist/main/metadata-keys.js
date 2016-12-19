@@ -11,3 +11,5 @@ exports.binderPropertyEntriesCompare = "binder:property:entries:compare";
 exports.binderPropertyEntriesValue = "binder:property:entries:value";
 exports.binderIdentifierKey = "binder:identifier:key";
 exports.binderIdentifierScope = "binder:identifier:scope";
+
+//# sourceMappingURL=metadata-keys.js.map
