@@ -14,6 +14,7 @@ class Baz {
     @bind(Foo) foo: Foo;
     @bind(Set) @generics(Bar) set: Set<Bar>;
     @bind(Map) @generics(Foo, Bar) map: Map<Foo, Bar>;
+    @bind(Array) digits: number[];
     @bind(Number) @track() number: number;
     @bind(String) string: string;
     bool: boolean;
@@ -31,6 +32,7 @@ describe("object-mapper", () => {
             map: [
                 [ { }, { } ]
             ],
+            digits: [ 1, 2, 3 ],
             number: 123,
             bool: true,
             string: "foobar"

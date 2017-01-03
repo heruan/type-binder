@@ -16,20 +16,22 @@ export function generics(...generics: any[]): PropertyDecorator {
 }
 
 export function track<V>(
-        comparingCallback: (v1: V, v2: V) => boolean = (v1, v2) => v1 === v2,
-        trackingCallback: (value: V) => V = value => value): PropertyDecorator {
+        trackingCallback: (value: V) => V = value => value,
+        comparingCallback: (v1: V, v2: V) => boolean = (v1, v2) => v1 === v2
+    ): PropertyDecorator {
     return (target: Function, key: string) => {
-        Reflect.defineMetadata(metadataKeys.binderPropertyTrackCompare, comparingCallback, target, key);
         Reflect.defineMetadata(metadataKeys.binderPropertyTrack, trackingCallback, target, key);
+        Reflect.defineMetadata(metadataKeys.binderPropertyTrackCompare, comparingCallback, target, key);
     };
 }
 
 export function trackIterable<V, I extends Iterable<V>>(
-        comparingCallback: (v1: V, v2: V) => boolean = (v1, v2) => v1 === v2,
-        trackingCallback: (iterable: I) => V[] = iterable => Array.from(iterable)): PropertyDecorator {
+        trackingCallback: (iterable: I) => any[] = iterable => Array.from(iterable),
+        comparingCallback: (v1: V, v2: V) => boolean = (v1, v2) => v1 === v2
+    ): PropertyDecorator {
     return (target: Function, key: string) => {
-        Reflect.defineMetadata(metadataKeys.binderPropertyEntriesCompare, comparingCallback, target, key);
         Reflect.defineMetadata(metadataKeys.binderPropertyEntries, trackingCallback, target, key);
+        Reflect.defineMetadata(metadataKeys.binderPropertyEntriesCompare, comparingCallback, target, key);
     };
 }
 

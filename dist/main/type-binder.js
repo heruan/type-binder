@@ -7,12 +7,26 @@ var TypeBinder = (function () {
         this.objectInstances = new Map();
         this.identityBinding = function (value, generics) { return value; };
         this.bindingCallbacks = new Map();
-        this.bindingCallbacks.set(Map, function (value, generics) { return new Map(value.map(function (pair) { return [
-            _this.bind(pair[0], generics[0]),
-            _this.bind(pair[1], generics[1])
-        ]; })); });
-        this.bindingCallbacks.set(Set, function (value, generics) { return new Set(value.map(function (element) { return _this.bind(element, generics[0]); })); });
-        this.bindingCallbacks.set(Array, function (value, generics) { return value.map(function (element) { return _this.bind(element, generics[0]); }); });
+        this.bindingCallbacks.set(Map, function (value, generics, current) {
+            if (generics === void 0) { generics = []; }
+            if (current === void 0) { current = new Map(); }
+            current.clear();
+            value.forEach(function (pair) { return current.set(_this.bind(pair[0], generics[0]), _this.bind(pair[1], generics[1])); });
+            return current;
+        });
+        this.bindingCallbacks.set(Set, function (value, generics, current) {
+            if (generics === void 0) { generics = []; }
+            if (current === void 0) { current = new Set(); }
+            current.clear();
+            value.forEach(function (element) { return current.add(_this.bind(element, generics[0])); });
+            return current;
+        });
+        this.bindingCallbacks.set(Array, function (value, generics, current) {
+            if (generics === void 0) { generics = []; }
+            if (current === void 0) { current = []; }
+            current.splice.apply(current, [0, current.length].concat(value.map(function (element) { return _this.bind(element, generics[0]); })));
+            return current;
+        });
         this.bindingCallbacks.set(Number, this.identityBinding);
         this.bindingCallbacks.set(String, this.identityBinding);
         this.bindingCallbacks.set(Boolean, this.identityBinding);
@@ -26,14 +40,17 @@ var TypeBinder = (function () {
         for (var _i = 2; _i < arguments.length; _i++) {
             generics[_i - 2] = arguments[_i];
         }
+        return this.update(value, type, generics);
+    };
+    TypeBinder.prototype.update = function (value, type, generics, current) {
         if (Array.isArray(type)) {
             generics = type.slice(1);
-            type = type[0];
+            type = type.shift();
         }
         if (this.bindingCallbacks.has(type)) {
-            return this.bindingCallbacks.get(type)(value, generics);
+            return this.bindingCallbacks.get(type)(value, generics, current);
         }
-        else if (typeof value === "object") {
+        else if (value !== null && typeof value === "object") {
             var object = this.createObject(type, value);
             var properties = this.createProperties(type, object, value);
             return Object.defineProperties(object, properties);
@@ -79,21 +96,22 @@ var TypeBinder = (function () {
         Object.getOwnPropertyNames(source).forEach(function (property) {
             var propertyType = Reflect.getMetadata(metadataKeys.designType, type.prototype, property);
             var propertyGenerics = Reflect.getMetadata(metadataKeys.designGenericTypes, type.prototype, property);
-            properties[property] = {
-                configurable: false,
-                enumerable: true,
-                writable: true,
-                value: propertyType ? _this.bind.apply(_this, [source[property], propertyType].concat(propertyGenerics)) : source[property]
-            };
+            var configurable = true;
+            var enumerable = true;
+            var writable = true;
+            var value = propertyType
+                ? _this.update(source[property], propertyType, propertyGenerics, target[property])
+                : source[property];
+            properties[property] = { configurable: configurable, enumerable: enumerable, writable: writable, value: value };
             if (Reflect.hasMetadata(metadataKeys.binderPropertyTrack, type.prototype, property)) {
                 var trackingCallback = Reflect.getMetadata(metadataKeys.binderPropertyTrack, type.prototype, property);
-                var value = trackingCallback(properties[property].value);
-                Reflect.defineMetadata(metadataKeys.binderPropertyTrackValue, value, target, property);
+                var value_1 = trackingCallback(properties[property].value);
+                Reflect.defineMetadata(metadataKeys.binderPropertyTrackValue, value_1, target, property);
             }
             if (Reflect.hasMetadata(metadataKeys.binderPropertyEntries, type.prototype, property)) {
                 var trackingCallback = Reflect.getMetadata(metadataKeys.binderPropertyEntries, type.prototype, property);
-                var value = trackingCallback(properties[property].value);
-                Reflect.defineMetadata(metadataKeys.binderPropertyEntriesValue, value, target, property);
+                var value_2 = trackingCallback(properties[property].value);
+                Reflect.defineMetadata(metadataKeys.binderPropertyEntriesValue, value_2, target, property);
             }
         });
         return properties;

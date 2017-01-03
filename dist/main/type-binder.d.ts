@@ -6,6 +6,7 @@ export declare class TypeBinder {
     constructor();
     setBindingCallback(type: any, callback: (value: any, generics: any[]) => any): void;
     bind<T>(value: any, type: new (...args) => T, ...generics: any[]): T;
+    update<T>(value: any, type: new (...args) => T, generics: any[], current?: T): T;
     isBound<T>(type: new (...args) => T, entity: T): boolean;
     private createObject<T>(type, source);
     private createProperties<T>(type, target, source);

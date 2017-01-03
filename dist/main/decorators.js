@@ -22,21 +22,21 @@ function generics() {
     return Reflect.metadata(metadataKeys.designGenericTypes, generics);
 }
 exports.generics = generics;
-function track(comparingCallback, trackingCallback) {
-    if (comparingCallback === void 0) { comparingCallback = function (v1, v2) { return v1 === v2; }; }
+function track(trackingCallback, comparingCallback) {
     if (trackingCallback === void 0) { trackingCallback = function (value) { return value; }; }
+    if (comparingCallback === void 0) { comparingCallback = function (v1, v2) { return v1 === v2; }; }
     return function (target, key) {
-        Reflect.defineMetadata(metadataKeys.binderPropertyTrackCompare, comparingCallback, target, key);
         Reflect.defineMetadata(metadataKeys.binderPropertyTrack, trackingCallback, target, key);
+        Reflect.defineMetadata(metadataKeys.binderPropertyTrackCompare, comparingCallback, target, key);
     };
 }
 exports.track = track;
-function trackIterable(comparingCallback, trackingCallback) {
-    if (comparingCallback === void 0) { comparingCallback = function (v1, v2) { return v1 === v2; }; }
+function trackIterable(trackingCallback, comparingCallback) {
     if (trackingCallback === void 0) { trackingCallback = function (iterable) { return Array.from(iterable); }; }
+    if (comparingCallback === void 0) { comparingCallback = function (v1, v2) { return v1 === v2; }; }
     return function (target, key) {
-        Reflect.defineMetadata(metadataKeys.binderPropertyEntriesCompare, comparingCallback, target, key);
         Reflect.defineMetadata(metadataKeys.binderPropertyEntries, trackingCallback, target, key);
+        Reflect.defineMetadata(metadataKeys.binderPropertyEntriesCompare, comparingCallback, target, key);
     };
 }
 exports.trackIterable = trackIterable;

@@ -50,6 +50,10 @@ __decorate([
     __metadata("design:type", Map)
 ], Baz.prototype, "map", void 0);
 __decorate([
+    decorators_1.bind(Array),
+    __metadata("design:type", Array)
+], Baz.prototype, "digits", void 0);
+__decorate([
     decorators_1.bind(Number), decorators_1.track(),
     __metadata("design:type", Number)
 ], Baz.prototype, "number", void 0);
@@ -71,6 +75,7 @@ describe("object-mapper", function () {
             map: [
                 [{}, {}]
             ],
+            digits: [1, 2, 3],
             number: 123,
             bool: true,
             string: "foobar"
