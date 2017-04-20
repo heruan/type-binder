@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 var metadataKeys = require("./metadata-keys");
 function bind(type) {

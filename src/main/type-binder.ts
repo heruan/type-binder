@@ -90,23 +90,33 @@ export class TypeBinder {
         let properties: PropertyDescriptorMap = {};
         Object.getOwnPropertyNames(source).forEach(property => {
             let propertyType = Reflect.getMetadata(metadataKeys.designType, type.prototype, property);
-            let propertyGenerics = Reflect.getMetadata(metadataKeys.designGenericTypes, type.prototype, property);
+            if (typeof propertyType === "function") {
+                propertyType = propertyType();
+            }
+            let propertyGenerics: any[] = Reflect.getMetadata(metadataKeys.designGenericTypes, type.prototype, property);
+            if (propertyGenerics !== undefined) {
+                propertyGenerics = propertyGenerics.map(genericType => (typeof genericType === "function") ? genericType() : genericType);
+            }
             let configurable = true;
             let enumerable = true;
             let writable = true;
             let value = propertyType
                 ? this.update(source[property], propertyType, propertyGenerics, target[property])
                 : source[property];
-            properties[property] = { configurable, enumerable, writable, value };
+            if (target[property] === undefined) {
+                properties[property] = { configurable, enumerable, writable, value };
+            } else {
+                target[property] = value;
+            }
             if (Reflect.hasMetadata(metadataKeys.binderPropertyTrack, type.prototype, property)) {
                 let trackingCallback: <V>(value: V) => V = Reflect.getMetadata(metadataKeys.binderPropertyTrack, type.prototype, property);
-                let value = trackingCallback(properties[property].value);
-                Reflect.defineMetadata(metadataKeys.binderPropertyTrackValue, value, target, property);
+                let trackingValue = trackingCallback(value);
+                Reflect.defineMetadata(metadataKeys.binderPropertyTrackValue, trackingValue, target, property);
             }
             if (Reflect.hasMetadata(metadataKeys.binderPropertyEntries, type.prototype, property)) {
                 let trackingCallback: <I extends Iterable<V>, V>(iterable: I) => V[] = Reflect.getMetadata(metadataKeys.binderPropertyEntries, type.prototype, property);
-                let value = trackingCallback(properties[property].value);
-                Reflect.defineMetadata(metadataKeys.binderPropertyEntriesValue, value, target, property);
+                let trackingValue = trackingCallback(value);
+                Reflect.defineMetadata(metadataKeys.binderPropertyEntriesValue, trackingValue, target, property);
             }
         });
         return properties;

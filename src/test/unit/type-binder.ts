@@ -11,12 +11,12 @@ class Bar extends Foo { }
 
 @identifier<Baz>(baz => baz.number)
 class Baz {
-    @bind(Foo) foo: Foo;
-    @bind(Set) @generics(Bar) set: Set<Bar>;
-    @bind(Map) @generics(Foo, Bar) map: Map<Foo, Bar>;
-    @bind(Array) digits: number[];
-    @bind(Number) @track() number: number;
-    @bind(String) string: string;
+    @bind(() => Foo) foo: Foo;
+    @bind(() => Set) @generics(() => Bar) set: Set<Bar>;
+    @bind(() => Map) @generics(() => Foo, () => Bar) map: Map<Foo, Bar>;
+    @bind(() => Array) digits: number[];
+    @bind(() => Number) @track() number: number;
+    @bind(() => String) string: string;
     bool: boolean;
 }
 

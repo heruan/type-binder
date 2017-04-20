@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 exports.designType = "design:type";
 exports.designParamTypes = "design:paramtypes";
 exports.designReturnType = "design:returntype";

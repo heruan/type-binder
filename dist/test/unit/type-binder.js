@@ -1,9 +1,14 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -13,6 +18,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 var decorators_1 = require("../../main/decorators");
 var type_binder_1 = require("../../main/type-binder");
@@ -22,13 +28,12 @@ var Foo = (function () {
     return Foo;
 }());
 Foo = __decorate([
-    decorators_1.identifier(function (foo) { return foo.id; }),
-    __metadata("design:paramtypes", [])
+    decorators_1.identifier(function (foo) { return foo.id; })
 ], Foo);
 var Bar = (function (_super) {
     __extends(Bar, _super);
     function Bar() {
-        return _super.apply(this, arguments) || this;
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     return Bar;
 }(Foo));
@@ -38,32 +43,31 @@ var Baz = (function () {
     return Baz;
 }());
 __decorate([
-    decorators_1.bind(Foo),
+    decorators_1.bind(function () { return Foo; }),
     __metadata("design:type", Foo)
 ], Baz.prototype, "foo", void 0);
 __decorate([
-    decorators_1.bind(Set), decorators_1.generics(Bar),
+    decorators_1.bind(function () { return Set; }), decorators_1.generics(function () { return Bar; }),
     __metadata("design:type", Set)
 ], Baz.prototype, "set", void 0);
 __decorate([
-    decorators_1.bind(Map), decorators_1.generics(Foo, Bar),
+    decorators_1.bind(function () { return Map; }), decorators_1.generics(function () { return Foo; }, function () { return Bar; }),
     __metadata("design:type", Map)
 ], Baz.prototype, "map", void 0);
 __decorate([
-    decorators_1.bind(Array),
+    decorators_1.bind(function () { return Array; }),
     __metadata("design:type", Array)
 ], Baz.prototype, "digits", void 0);
 __decorate([
-    decorators_1.bind(Number), decorators_1.track(),
+    decorators_1.bind(function () { return Number; }), decorators_1.track(),
     __metadata("design:type", Number)
 ], Baz.prototype, "number", void 0);
 __decorate([
-    decorators_1.bind(String),
+    decorators_1.bind(function () { return String; }),
     __metadata("design:type", String)
 ], Baz.prototype, "string", void 0);
 Baz = __decorate([
-    decorators_1.identifier(function (baz) { return baz.number; }),
-    __metadata("design:paramtypes", [])
+    decorators_1.identifier(function (baz) { return baz.number; })
 ], Baz);
 describe("object-mapper", function () {
     it("maps an object", function () {

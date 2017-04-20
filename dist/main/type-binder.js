@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 var metadataKeys = require("./metadata-keys");
 var TypeBinder = (function () {
@@ -95,23 +96,34 @@ var TypeBinder = (function () {
         var properties = {};
         Object.getOwnPropertyNames(source).forEach(function (property) {
             var propertyType = Reflect.getMetadata(metadataKeys.designType, type.prototype, property);
+            if (typeof propertyType === "function") {
+                propertyType = propertyType();
+            }
             var propertyGenerics = Reflect.getMetadata(metadataKeys.designGenericTypes, type.prototype, property);
+            if (propertyGenerics !== undefined) {
+                propertyGenerics = propertyGenerics.map(function (genericType) { return (typeof genericType === "function") ? genericType() : genericType; });
+            }
             var configurable = true;
             var enumerable = true;
             var writable = true;
             var value = propertyType
                 ? _this.update(source[property], propertyType, propertyGenerics, target[property])
                 : source[property];
-            properties[property] = { configurable: configurable, enumerable: enumerable, writable: writable, value: value };
+            if (target[property] === undefined) {
+                properties[property] = { configurable: configurable, enumerable: enumerable, writable: writable, value: value };
+            }
+            else {
+                target[property] = value;
+            }
             if (Reflect.hasMetadata(metadataKeys.binderPropertyTrack, type.prototype, property)) {
                 var trackingCallback = Reflect.getMetadata(metadataKeys.binderPropertyTrack, type.prototype, property);
-                var value_1 = trackingCallback(properties[property].value);
-                Reflect.defineMetadata(metadataKeys.binderPropertyTrackValue, value_1, target, property);
+                var trackingValue = trackingCallback(value);
+                Reflect.defineMetadata(metadataKeys.binderPropertyTrackValue, trackingValue, target, property);
             }
             if (Reflect.hasMetadata(metadataKeys.binderPropertyEntries, type.prototype, property)) {
                 var trackingCallback = Reflect.getMetadata(metadataKeys.binderPropertyEntries, type.prototype, property);
-                var value_2 = trackingCallback(properties[property].value);
-                Reflect.defineMetadata(metadataKeys.binderPropertyEntriesValue, value_2, target, property);
+                var trackingValue = trackingCallback(value);
+                Reflect.defineMetadata(metadataKeys.binderPropertyEntriesValue, trackingValue, target, property);
             }
         });
         return properties;
